@@ -1865,6 +1865,7 @@ function defineC3(){
         position: 'right',
         show: true
       },
+      useC3Legend: false,
       padding: {},
       point: {
         focus: {
@@ -1963,6 +1964,7 @@ function defineC3(){
           }.bind(this));
         }
         if (options.legend.show === true
+          && !options.useC3Legend
           && options.legend.position === 'right'
             && ['gauge'].indexOf(type.replace('horizontal-', ''))) {
                 options.data.color = c3CustomDataMapping.bind(this);
@@ -1980,6 +1982,9 @@ function defineC3(){
                 c3PaginatingLegend.call(this, options.data.columns);
         }
         else {
+          if (!options.useC3Legend) {
+            options.legend.show = false;
+          }
           this.view._artifacts['c3'] = c3.generate(options);
         }
       },
