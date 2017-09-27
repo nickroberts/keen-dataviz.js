@@ -1733,6 +1733,12 @@ function _generateTableRows(dataset, colWidths, colAligns) {
   }
   return html;
 }
+function getHeadingText(value) {
+  if (this.view.labelMapping[value]) {
+    return escapeHtml(this.view.labelMapping[value]);
+  }
+  return  escapeHtml(value)
+}
 module.exports = {
   render: function(){
     var dataset = this.data(),
@@ -1763,7 +1769,7 @@ module.exports = {
     html +=     '<thead>';
     html +=       '<tr>';
     for (var i = 0; i < dataset[0].length; i++) {
-      html +=       '<th style="width: '+ (10 * colWidths[i]) +'px; text-align: ' + colAligns[i] + ';">' + escapeHtml(dataset[0][i]) + '</th>';
+      html +=       '<th style="width: '+ (10 * colWidths[i]) +'px; text-align: ' + colAligns[i] + ';">' + getHeadingText(dataset[0][i]) + '</th>';
     }
     html +=       '</tr>';
     html +=     '</thead>';
@@ -1775,7 +1781,7 @@ module.exports = {
     html +=     '<thead>';
     html +=       '<tr>';
     for (var i = 0; i < dataset[0].length; i++) {
-      html +=       '<th style="min-width: '+ (10 * colWidths[i]) +'px; text-align: ' + colAligns[i] + ';">' + escapeHtml(dataset[0][i]) + '</th>';
+      html +=       '<th style="min-width: '+ (10 * colWidths[i]) +'px; text-align: ' + colAligns[i] + ';">' + getHeadingText(dataset[0][i]) + '</th>';
     }
     html +=       '</tr>';
     html +=     '</thead>';
