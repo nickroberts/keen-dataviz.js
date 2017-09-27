@@ -4,7 +4,6 @@ var gulp = require('gulp'),
 var aws = require('gulp-awspublish'),
     browserify = require('browserify'),
     connect = require('gulp-connect'),
-    compress = require('gulp-yuicompressor'),
     karma = require('karma').Server,
     minifyCss = require('gulp-minify-css'),
     mocha = require('gulp-mocha'),
@@ -12,7 +11,8 @@ var aws = require('gulp-awspublish'),
     rename = require('gulp-rename'),
     squash = require('gulp-remove-empty-lines'),
     strip = require('gulp-strip-comments'),
-    through2 = require('through2');
+    through2 = require('through2'),
+    uglify = require('gulp-uglify');
 
 // Style
 var postcss = require('gulp-postcss'),
@@ -63,7 +63,7 @@ gulp.task('build:script', function(){
 
 gulp.task('build:minify-script', ['build:script'], function(){
   return gulp.src('./dist/' + pkg.name + '.js')
-    .pipe(compress({ type: 'js' }))
+    .pipe(uglify())
     .pipe(rename({ suffix: '.min' }))
     .pipe(gulp.dest('./dist/'));
 });
@@ -165,9 +165,30 @@ gulp.task('aws', ['build'], function() {
     }
   });
 
-  return gulp.src([
+  var jsHeaders = Object.assign({}, headers, {
+    'Content-Type': 'application/javascript;charset=UTF-8'
+  });
+
+  var cssHeaders = Object.assign({}, headers, {
+    'Content-Type': 'text/css'
+  });
+
+  gulp
+    .src([
       './dist/' + pkg.name + '.js',
-      './dist/' + pkg.name + '.min.js',
+      './dist/' + pkg.name + '.min.js'
+    ])
+    .pipe(rename(function(path) {
+      path.dirname += '/';
+      var name = pkg.name + '-' + pkg.version;
+      path.basename = (path.basename.indexOf('min') > -1) ? name + '.min' : name;
+    }))
+    .pipe(aws.gzip())
+    .pipe(publisher.publish(jsHeaders, { force: true }))
+    .pipe(publisher.cache())
+    .pipe(aws.reporter());
+
+  return gulp.src([
       './dist/' + pkg.name + '.css',
       './dist/' + pkg.name + '.min.css'
     ])
@@ -177,7 +198,7 @@ gulp.task('aws', ['build'], function() {
       path.basename = (path.basename.indexOf('min') > -1) ? name + '.min' : name;
     }))
     .pipe(aws.gzip())
-    .pipe(publisher.publish(headers, { force: true }))
+    .pipe(publisher.publish(cssHeaders, { force: true }))
     .pipe(publisher.cache())
     .pipe(aws.reporter());
 
