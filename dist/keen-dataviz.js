@@ -1733,12 +1733,6 @@ function _generateTableRows(dataset, colWidths, colAligns) {
   }
   return html;
 }
-function getHeadingText(value) {
-  if (this.view.labelMapping[value]) {
-    return escapeHtml(this.view.labelMapping[value]);
-  }
-  return  escapeHtml(value)
-}
 module.exports = {
   render: function(){
     var dataset = this.data(),
@@ -1764,6 +1758,13 @@ module.exports = {
         colWidths[i] = (String(cell).length > colWidths[i]) ? String(cell).length : colWidths[i];
       });
     });
+    var vm = this;
+    function getHeadingText(value) {
+      if (vm.view.labelMapping[value]) {
+        return escapeHtml(vm.view.labelMapping[value]);
+      }
+      return  escapeHtml(value)
+    }
     html += '<div class="' + theme + '-table" style="height: '+(height ? height+'px' : 'auto')+'; width: '+(width ? width+'px' : 'auto')+';">';
     html +=   '<table class="' + theme + '-table-dataset">';
     html +=     '<thead>';
